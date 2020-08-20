@@ -1,0 +1,310 @@
+---
+title: "Analise_exploratoria_arroz"
+author: "Gutemberg Resende Honorio Filho"
+date: "20/08/2020"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Pacote
+```{r}
+library(tidyverse)
+```
+# Diretório dos Dados
+```{r}
+Caminho_dos_dados <- file.path("C:","Users","Gutemberg","Desktop","Mestrado","Dados da Dicertação","Dados Brutos","Merge_1980_2018.csv")
+Tabelabruta<- read.csv(Caminho_dos_dados, header = TRUE, sep = ";", stringsAsFactors = FALSE)
+```
+# Tabelas acessório
+```{r}
+TabelabrutaTA = subset(Tabelabruta, SIST_CULT == "UPLAND")
+TabelabrutaIRR = subset(Tabelabruta, SIST_CULT == "IRRIGATED")
+
+dadosIRR<- TabelabrutaIRR[,c(6,	7,	8,	21,	22,	23,	24,	25,	27,	60,	62,	63,	64,	
+                             65,	66,	67,	68,	72,	73,	74,	75,	76,	77,	78,	79,	
+                             80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	
+                             92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	102,
+                             103,	104,	105,	106,	107,	108,	109,	110,
+                             111,	112,	113,	114,	115
+)] 
+names(dadosIRR)<- c("latitude",	"longitude",	"Altitude",	"Produtividade ",	
+                    "Data de Florescimento (DAE)",	"Altura da planta",
+                    "Ciclo total da planta",	"Acamamento",	"Vigor",	"Ano do Plantio",	
+                    "Data de Florescimento estimado",	"Data de Florescimento médio",	
+                    "Iniciação da panícula estimada",	"Iniciação da primeira panícula",	
+                    "Maturação fisiológica",	"Maturação fisiológica estimada",	
+                    "Maturação fisiológica máxima",	"Temperatura máxima no ciclo da cultura",
+                    "Temperatura mínima no ciclo da cultura",	
+                    "Temperatura média no ciclo da cultura",	
+                    "Temperatura máxima na iniciação da panícula",
+                    "Temperatura máxima no florescimento",	"Temperatura máxima no período vegetativo",	
+                    "Temperatura máxima acumulada no período vegetativo",	"Temperatura máxima no período reprodutivo",
+                    "Temperatura máxima acumulada no período reprodutivo",
+                    "Temperatura máxima no período de enchimento de grãos",	
+                    "Temperatura máxima acumulada no período de enchimento de grãos",	
+                    "Valor máximo da temperatura mínima no ciclo da cultura ",
+                    "Valor mínima da temperatura mínima no ciclo da cultura",	
+                    "Valor médio da temperatura mínima no ciclo da cultura",	
+                    "Valor da temperatura mínima durante a ocorrência da iniciação da panicula",
+                    "Valor da temperatura mínima durante a ocorrência do florecimento",
+                    "Temperatura mínima no período vegetativo",	
+                    "Temperatura mínima acumulada no  período vegetativo",	
+                    "Temperatura mínima no período reprodutivo",	
+                    "Temperatura mínima acumulada no período reprodutivo",	
+                    "Temperatura mínima no período do enchimento de grãos",	
+                    "Temperatura mínima acumulada no períodode enchimento de grãos",
+                    "Precipitação acumulada no ciclo da cultura",	"Precipitação acumulada no período vegetativo",	
+                    "Precipitação acumulada no períodoreprodutivo",	
+                    "Precipitação acumulada no período de enchimento de grãos",	
+                    "Radiação acumulada no ciclo da cultura",	"Radiação acumulada no período vegetativo",	
+                    "Radiação acumulada no período reprodutivo",	"Radiação acumulada no período de enchimento de grãos",
+                    "Umidade média no ciclo da cultura",	"Umidade no periodo de florescimento ",	
+                    "Umidade no período vegetativo",	"Umidade no período reprodutivo",	
+                    "Umidade no período de enchimento de grãos",	"Vento médio no ciclo da cultura",	
+                    "Vento no periodo de florescimento",	"Vento no período vegetativo",	"Vento no período reprodutivo",	
+                    "Vento no período de enchimento de grãos",	"Graus dias acumulado do plantio a iniciação da panicula",
+                    "Graus dias acumulado da iniciação da panicula ao florecimento",
+                    "Graus dias acumulado do florecimento a maturação fisiológica",
+                    "Graus dias acumulado no ciclo da cultura"
+)
+
+dadosTA<- TabelabrutaTA[,c(6,	7,	8,	21,	22,	23,	24,	25,	27,	60,	62,	63,	64,	
+                           65,	66,	67,	68,	72,	73,	74,	75,	76,	77,	78,	79,	
+                           80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	
+                           92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	102,
+                           103,	104,	105,	106,	107,	108,	109,	110,
+                           111,	112,	113,	114,	115
+)] 
+
+names(dadosTA)<- c("latitude",	"longitude",	"Altitude",	"Produtividade ",	
+                    "Data de Florescimento (DAE)",	"Altura da planta",
+                    "Ciclo total da planta",	"Acamamento",	"Vigor",	"Ano do Plantio",	
+                    "Data de Florescimento estimado",	"Data de Florescimento médio",	
+                    "Iniciação da panícula estimada",	"Iniciação da primeira panícula",	
+                    "Maturação fisiológica",	"Maturação fisiológica estimada",	
+                    "Maturação fisiológica máxima",	"Temperatura máxima no ciclo da cultura",
+                    "Temperatura mínima no ciclo da cultura",	
+                    "Temperatura média no ciclo da cultura",	
+                    "Temperatura máxima na iniciação da panícula",
+                    "Temperatura máxima no florescimento",	"Temperatura máxima no período vegetativo",	
+                    "Temperatura máxima acumulada no período vegetativo",	"Temperatura máxima no período reprodutivo",
+                    "Temperatura máxima acumulada no período reprodutivo",
+                    "Temperatura máxima no período de enchimento de grãos",	
+                    "Temperatura máxima acumulada no período de enchimento de grãos",	
+                    "Valor máximo da temperatura mínima no ciclo da cultura ",
+                    "Valor mínima da temperatura mínima no ciclo da cultura",	
+                    "Valor médio da temperatura mínima no ciclo da cultura",	
+                    "Valor da temperatura mínima durante a ocorrência da iniciação da panicula",
+                    "Valor da temperatura mínima durante a ocorrência do florecimento",
+                    "Temperatura mínima no período vegetativo",	
+                    "Temperatura mínima acumulada no  período vegetativo",	
+                    "Temperatura mínima no período reprodutivo",	
+                    "Temperatura mínima acumulada no período reprodutivo",	
+                    "Temperatura mínima no período do enchimento de grãos",	
+                    "Temperatura mínima acumulada no períodode enchimento de grãos",
+                    "Precipitação acumulada no ciclo da cultura",	"Precipitação acumulada no período vegetativo",	
+                    "Precipitação acumulada no períodoreprodutivo",	
+                    "Precipitação acumulada no período de enchimento de grãos",	
+                    "Radiação acumulada no ciclo da cultura",	"Radiação acumulada no período vegetativo",	
+                    "Radiação acumulada no período reprodutivo",	"Radiação acumulada no período de enchimento de grãos",
+                    "Umidade média no ciclo da cultura",	"Umidade no periodo de florescimento ",	
+                    "Umidade no período vegetativo",	"Umidade no período reprodutivo",	
+                    "Umidade no período de enchimento de grãos",	"Vento médio no ciclo da cultura",	
+                    "Vento no periodo de florescimento",	"Vento no período vegetativo",	"Vento no período reprodutivo",	
+                    "Vento no período de enchimento de grãos",	"Graus dias acumulado do plantio a iniciação da panicula",
+                    "Graus dias acumulado da iniciação da panicula ao florecimento",
+                    "Graus dias acumulado do florecimento a maturação fisiológica",
+                    "Graus dias acumulado no ciclo da cultura")
+```
+# Analise exploratiria básica
+Pacote
+```{r}
+library(devtools)#somente na primeira vez
+install_github("ujjwalkarn/xda")#somente na primeira vez
+library(xda)
+
+```
+## Terras Altas
+Geral
+```{r}
+numSummary(dadosTA)
+```
+
+## Irrigado
+Geral
+```{r}
+numSummary(dadosIRR)
+```
+
+## Boxplots
+Pacote
+```{r}
+library(gridExtra) 
+library(tidyverse)# precisa do tidyverse também
+```
+Loop
+```{r}
+
+rotulos<-c( "latitude",	"longitude",	"Altitude",	"Produtividade ",	
+            "Data de Florescimento (DAE)",	"Altura da planta",
+            "Ciclo total da planta",	"Acamamento",	"Vigor",	"Ano do Plantio",	
+            "Data de Florescimento estimado",	"Data de Florescimento médio",	
+            "Iniciação da panícula estimada",	"Iniciação da primeira panícula",	
+            "Maturação fisiológica",	"Maturação fisiológica estimada",	
+            "Maturação fisiológica máxima",	"Temperatura máxima no ciclo da cultura",
+            "Temperatura mínima no ciclo da cultura",	
+            "Temperatura média no ciclo da cultura",	
+            "Temperatura máxima na iniciação da panícula",
+            "Temperatura máxima no florescimento",	"Temperatura máxima no período vegetativo",	
+            "Temperatura máxima acumulada no período vegetativo",	"Temperatura máxima no período reprodutivo",
+            "Temperatura máxima acumulada no período reprodutivo",
+            "Temperatura máxima no período de enchimento de grãos",	
+            "Temperatura máxima acumulada no período de enchimento de grãos",	
+            "Valor máximo da temperatura mínima no ciclo da cultura ",
+            "Valor mínima da temperatura mínima no ciclo da cultura",	
+            "Valor médio da temperatura mínima no ciclo da cultura",	
+            "Valor da temperatura mínima durante a ocorrência da iniciação da panicula",
+            "Valor da temperatura mínima durante a ocorrência do florecimento",
+            "Temperatura mínima no período vegetativo",	
+            "Temperatura mínima acumulada no  período vegetativo",	
+            "Temperatura mínima no período reprodutivo",	
+            "Temperatura mínima acumulada no período reprodutivo",	
+            "Temperatura mínima no período do enchimento de grãos",	
+            "Temperatura mínima acumulada no períodode enchimento de grãos",
+            "Precipitação acumulada no ciclo da cultura",	"Precipitação acumulada no período vegetativo",	
+            "Precipitação acumulada no períodoreprodutivo",	
+            "Precipitação acumulada no período de enchimento de grãos",	
+            "Radiação acumulada no ciclo da cultura",	"Radiação acumulada no período vegetativo",	
+            "Radiação acumulada no período reprodutivo",	"Radiação acumulada no período de enchimento de grãos",
+            "Umidade média no ciclo da cultura",	"Umidade no periodo de florescimento ",	
+            "Umidade no período vegetativo",	"Umidade no período reprodutivo",	
+            "Umidade no período de enchimento de grãos",	"Vento médio no ciclo da cultura",	
+            "Vento no periodo de florescimento",	"Vento no período vegetativo",	"Vento no período reprodutivo",	
+            "Vento no período de enchimento de grãos",	"Graus dias acumulado do plantio a iniciação da panicula",
+            "Graus dias acumulado da iniciação da panicula ao florecimento",
+            "Graus dias acumulado do florecimento a maturação fisiológica",
+            "Graus dias acumulado no ciclo da cultura"
+)
+Rotulos2<-c("Graus",	"Graus",	"metros ao nivel do mar",	"kg/ha",	
+            "Dias após a emergência",	"Altura (cm)",	"Dias",	"",	
+            "",	"",	"Dias após a emergência",	"Dias após a emergência",	
+            "Dias após a emergência",	"Dias após a emergência",	"Dias após a emergência",	
+            "Dias após a emergência",	"Dias após a emergência",	"Temperatura (ºC)",	
+            "Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",
+            "Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	
+            "Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	
+            "Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	
+            "Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",	"Temperatura (ºC)",
+            "Temperatura (ºC)",	"Precipitação (mm)",	"Precipitação (mm)",	"Precipitação (mm)",
+            "Precipitação (mm)",	"",	"",	"",	"",	"Umidade relativa (%UR)",	"Umidade relativa (%UR)",
+            "Umidade relativa (%UR)",	"Umidade relativa (%UR)",	"Umidade relativa (%UR)",	"km/h",
+            "km/h",	"km/h",	"km/h",	"km/h",	"ºC dia",	"ºC dia",	"ºC dia",	"ºC dia"
+)
+
+for(i in 3:61) {
+  resumoDadosIRR <- tableGrob(summary(dadosIRR[i]), cols = "Irrigado") 
+  resumoDadosTA <- tableGrob(summary(dadosTA[i]),cols = "Terras altas")
+  
+ dadosNum <- ggplot (data = dadosIRR) +
+    geom_boxplot(aes(y= dadosIRR[,i], x= "Irrigado"), data = dadosIRR, color= "blue")+
+    geom_boxplot(aes(y= dadosTA[,i], x= "Terras altas"), data = dadosTA, color= "#EA6E16")+
+    labs(x = rotulos[i], y=Rotulos2[i] )
+  
+  
+ Boxplot_por_sist_cult<-grid.arrange(resumoDadosIRR, dadosNum,resumoDadosTA , ncol=3)
+
+   
+}
+rm(Rotulos2)
+rm(rotulos)
+
+```
+
+# Distribuição geografica dos ensaios
+Pacote
+```{r}
+library(geobr)
+library(ggspatial)
+library(spatstat)
+library(tidyverse)
+```
+
+Mapa
+```{r}
+Brasil<- read_state(code_state="all",year=2010)
+
+
+  
+ggplot(Brasil) +
+  geom_sf(aes(group = code_state), data = Brasil, size = 0.1 , fill = "#FFF7C2") +
+  geom_point(aes(x = longitude, y = latitude, colour = "Irrigado"), data = TabelabrutaIRR, size = 1L)+
+  geom_point(aes(x = longitude, y = latitude, colour = "Terras altas"), data = TabelabrutaTA, size = 1L)+
+  scale_colour_manual(values = c("blue","#EA6E16"))+
+  labs(x = "Longitude", y = "Latitude", title = "   Distribuição geográfica dos ensaios", color = "Legenda") +
+  annotation_north_arrow(style=north_arrow_fancy_orienteering)+
+  annotation_scale(location="br", height = unit(0.15,"cm"))+
+  theme_minimal()+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+rm(Brasil)
+```
+# Correlações
+Pacotes
+```{r}
+install.packages("Hmisc", dependencies = T) #só é necessario na primeira vez
+library(Hmisc)
+library(corrplot)
+
+library(PerformanceAnalytics)
+```
+# Terras altas
+Geral
+```{r}
+Temporario<- TabelabrutaTA[,c(8,	21,	22,	23,	62,	63,	64,	65,	66,	67,	68,	72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	102,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	113,	114,	115)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+```
+
+
+## Grupo 1 Graus dias
+
+Correlacionada com variaveis da TEMPERATURA
+```{r}
+Temporario<- TabelabrutaTA[,c(72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	92,	93,	112,	113,	114, 115)]
+chart.Correlation(Temporario, histogram = T)
+```
+
+Correlacionadas com variáveis de umidade e vento
+```{r}
+Temporario<- TabelabrutaTA[,c(102,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	113,	114,	115)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+```
+
+Correlacionadas com variáveis radiação e precipitação
+```{r}
+Temporario<- TabelabrutaTA[,c(94,	95,	96,	97,	98,	99,	100,	101,	112,	113,	114,	115)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+```
+
+Correlacionadas com variáveis altitude e de produção
+```{r}
+Temporario<- TabelabrutaTA[,c(8,	21,	22,	23,	62,	63,	64,	65,	67,	68,	112,	113,	114,	115)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+```
+
+
+## Grupo 2 (Prod, flo, ipani,MF, altitude, alt, ciclo ))
+Leitura inicial
+```{r}
+  Temporario<- TabelabrutaTA[,c(21,	22,	62,	63,	64,	65,	66,	67,	68,	8,	23,	24)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+
+``` 
