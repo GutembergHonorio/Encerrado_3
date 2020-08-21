@@ -222,6 +222,9 @@ rm(Rotulos2)
 rm(rotulos)
 
 ```
+```{r}
+rm(i)
+```
 
 # Distribuição geografica dos ensaios
 Pacote
@@ -230,6 +233,7 @@ library(geobr)
 library(ggspatial)
 library(spatstat)
 library(tidyverse)
+library(zoom)
 ```
 
 Mapa
@@ -258,53 +262,347 @@ Pacotes
 install.packages("Hmisc", dependencies = T) #só é necessario na primeira vez
 library(Hmisc)
 library(corrplot)
-
+library(tidyverse)
 library(PerformanceAnalytics)
 ```
-# Terras altas
-Geral
+
+## Organização dos dados
+EXECUTAR ESTE PRIMEIRO - Escolha um dos formatos abaixo:
+
+para trabalhar com os dados originais
 ```{r}
-Temporario<- TabelabrutaTA[,c(8,	21,	22,	23,	62,	63,	64,	65,	66,	67,	68,	72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	92,	93,	94,	95,	96,	97,	98,	99,	100,	101,	102,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	113,	114,	115)]
-na.delete(Temporario)
-chart.Correlation(Temporario, histogram = T)
+mediasTA <- TabelabrutaTA[,c(c("ID_ENSAIO",	"GENOTIPO",	"latitude",	"longitude",	"Altitude",	"ANO",	"PROD",	"FLO",	"ALT",	"Ano_plantio",	"SAFRA",	"FLO_E",	"FLO_M",	"IP_E",	"IP_E_I",	"MF_E",	"MF_E_Max",	"Tmax_Maxima",	"Tmax_Minima",	"Tmax_Media",	"Tmax_ip_e_i",	"Tmax_fld_m",	"Tmax_V",	"Tmax_ACC_V",	"Tmax_R",	"Tmax_ACC_R",	"Tmax_EG",	"Tmax_ACC_EG",	"Tmin_Maxima",	"Tmin_Minima",	"Tmin_Media",	"Tmin_ip_e_i",	"Tmin_fld_m",	"Tmin_V",	"Tmin_ACC_V",	"Tmin_R",	"Tmin_ACC_R",	"Tmin_EG",	"Tmin_ACC_EG",	"Chuva_ACC",	"Chuva_ACC_V",	"Chuva_ACC_R",	"Chuva_ACC_EG",	"Rad_ACC",	"Rad_ACC_V",	"Rad_ACC_R",	"Rad_ACC_EG",	"umidade_Media",	"umidade_fld_m",	"umidade_V",	"umidade_R",	"umidade_EG",	"Vento_Media",	"Vento_fld_m",	"Vento_V",	"Vento_R",	"Vento_EG",	"graus_dia_IP",	"graus_dia_FLO",	"graus_dia_MF",	"graus_dia_ciclo"))]
+
+mediasIRR <- TabelabrutaIRR[,c("ID_ENSAIO",	"GENOTIPO",	"latitude",	"longitude",	"Altitude",	"ANO",	"PROD",	"FLO",	"ALT",	"Ano_plantio",	"SAFRA",	"FLO_E",	"FLO_M",	"IP_E",	"IP_E_I",	"MF_E",	"MF_E_Max",	"Tmax_Maxima",	"Tmax_Minima",	"Tmax_Media",	"Tmax_ip_e_i",	"Tmax_fld_m",	"Tmax_V",	"Tmax_ACC_V",	"Tmax_R",	"Tmax_ACC_R",	"Tmax_EG",	"Tmax_ACC_EG",	"Tmin_Maxima",	"Tmin_Minima",	"Tmin_Media",	"Tmin_ip_e_i",	"Tmin_fld_m",	"Tmin_V",	"Tmin_ACC_V",	"Tmin_R",	"Tmin_ACC_R",	"Tmin_EG",	"Tmin_ACC_EG",	"Chuva_ACC",	"Chuva_ACC_V",	"Chuva_ACC_R",	"Chuva_ACC_EG",	"Rad_ACC",	"Rad_ACC_V",	"Rad_ACC_R",	"Rad_ACC_EG",	"umidade_Media",	"umidade_fld_m",	"umidade_V",	"umidade_R",	"umidade_EG",	"Vento_Media",	"Vento_fld_m",	"Vento_V",	"Vento_R",	"Vento_EG",	"graus_dia_IP",	"graus_dia_FLO",	"graus_dia_MF",	"graus_dia_ciclo")]
+```
+para trabalhar com as médias dos ensaios
+```{r}
+mediasTA <- TabelabrutaTA  %>% mutate(GENOTIPO = 0) %>%  group_by(ID_ENSAIO) %>% summarise(	mean(GENOTIPO),	mean(latitude),	mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo))
+
+mediasIRR <- TabelabrutaIRR %>% mutate(GENOTIPO = 0) %>%  group_by(ID_ENSAIO) %>% summarise(mean(GENOTIPO),	mean(latitude),	mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo))
+```
+para trabalhar com as médias dos genótipos
+```{r}
+mediasTA <- TabelabrutaTA %>% mutate(ID_ENSAIO = 0) %>% group_by(GENOTIPO) %>% summarise(mean(ID_ENSAIO),	mean(latitude),	mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo)) # Lembrete: tomar cuidado com a coluna 2
+
+mediasIRR <- TabelabrutaIRR %>% mutate(ID_ENSAIO = 0) group_by(GENOTIPO) %>% summarise(mean(ID_ENSAIO),	mean(latitude),	mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo)) # Lembrete: tomar cuidado com a coluna 2
+
+```
+para trabalhar com as médias dos genótipos por ensaio
+```{r}
+mediasTA <- TabelabrutaTA %>% group_by(ID_ENSAIO, GENOTIPO) %>% summarise(mean(latitude),	mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo))
+
+mediasIRR <- TabelabrutaIRR %>% group_by(ID_ENSAIO, GENOTIPO) %>% summarise(mean(latitude), mean(longitude),	mean(Altitude),	mean(ANO),	mean(PROD),	mean(FLO),	mean(ALT),	mean(Ano_plantio),	mean(SAFRA),	mean(FLO_E),	mean(FLO_M),	mean(IP_E),	mean(IP_E_I),	mean(MF_E),	mean(MF_E_Max),	mean(Tmax_Maxima),	mean(Tmax_Minima),	mean(Tmax_Media),	mean(Tmax_ip_e_i),	mean(Tmax_fld_m),	mean(Tmax_V),	mean(Tmax_ACC_V),	mean(Tmax_R),	mean(Tmax_ACC_R),	mean(Tmax_EG),	mean(Tmax_ACC_EG),	mean(Tmin_Maxima),	mean(Tmin_Minima),	mean(Tmin_Media),	mean(Tmin_ip_e_i),	mean(Tmin_fld_m),	mean(Tmin_V),	mean(Tmin_ACC_V),	mean(Tmin_R),	mean(Tmin_ACC_R),	mean(Tmin_EG),	mean(Tmin_ACC_EG),	mean(Chuva_ACC),	mean(Chuva_ACC_V),	mean(Chuva_ACC_R),	mean(Chuva_ACC_EG),	mean(Rad_ACC),	mean(Rad_ACC_V),	mean(Rad_ACC_R),	mean(Rad_ACC_EG),	mean(umidade_Media),	mean(umidade_fld_m),	mean(umidade_V),	mean(umidade_R),	mean(umidade_EG),	mean(Vento_Media),	mean(Vento_fld_m),	mean(Vento_V),	mean(Vento_R),	mean(Vento_EG),	mean(graus_dia_IP),	mean(graus_dia_FLO),	mean(graus_dia_MF),	mean(graus_dia_ciclo))
+```
+
+RENOMEANDO (independente da escolha)
+```{r}
+names(mediasIRR)<- c("",	"",	"latitude",	"longitude",	"Altitude",	"ANO",	"PROD",	"FLO",	"ALT",	"Ano_plantio",	"SAFRA",	"FLO_E",	"FLO_M",	"IP_E",	"IP_E_I",	"MF_E",	"MF_E_Max",	"Tmax_Maxima",	"Tmax_Minima",	"Tmax_Media",	"Tmax_ip_e_i",	"Tmax_fld_m",	"Tmax_V",	"Tmax_ACC_V",	"Tmax_R",	"Tmax_ACC_R",	"Tmax_EG",	"Tmax_ACC_EG",	"Tmin_Maxima",	"Tmin_Minima",	"Tmin_Media",	"Tmin_ip_e_i",	"Tmin_fld_m",	"Tmin_V",	"Tmin_ACC_V",	"Tmin_R",	"Tmin_ACC_R",	"Tmin_EG",	"Tmin_ACC_EG",	"Chuva_ACC",	"Chuva_ACC_V",	"Chuva_ACC_R",	"Chuva_ACC_EG",	"Rad_ACC",	"Rad_ACC_V",	"Rad_ACC_R",	"Rad_ACC_EG",	"umidade_Media",	"umidade_fld_m",	"umidade_V",	"umidade_R",	"umidade_EG",	"Vento_Media",	"Vento_fld_m",	"Vento_V",	"Vento_R",	"Vento_EG",	"graus_dia_IP",	"graus_dia_FLO",	"graus_dia_MF",	"graus_dia_ciclo")
+
+names(mediasTA)<- c("",	"",	"latitude",	"longitude",	"Altitude",	"ANO",	"PROD",	"FLO",	"ALT",	"Ano_plantio",	"SAFRA",	"FLO_E",	"FLO_M",	"IP_E",	"IP_E_I",	"MF_E",	"MF_E_Max",	"Tmax_Maxima",	"Tmax_Minima",	"Tmax_Media",	"Tmax_ip_e_i",	"Tmax_fld_m",	"Tmax_V",	"Tmax_ACC_V",	"Tmax_R",	"Tmax_ACC_R",	"Tmax_EG",	"Tmax_ACC_EG",	"Tmin_Maxima",	"Tmin_Minima",	"Tmin_Media",	"Tmin_ip_e_i",	"Tmin_fld_m",	"Tmin_V",	"Tmin_ACC_V",	"Tmin_R",	"Tmin_ACC_R",	"Tmin_EG",	"Tmin_ACC_EG",	"Chuva_ACC",	"Chuva_ACC_V",	"Chuva_ACC_R",	"Chuva_ACC_EG",	"Rad_ACC",	"Rad_ACC_V",	"Rad_ACC_R",	"Rad_ACC_EG",	"umidade_Media",	"umidade_fld_m",	"umidade_V",	"umidade_R",	"umidade_EG",	"Vento_Media",	"Vento_fld_m",	"Vento_V",	"Vento_R",	"Vento_EG",	"graus_dia_IP",	"graus_dia_FLO",	"graus_dia_MF",	"graus_dia_ciclo")
 ```
 
 
 ## Grupo 1 Graus dias
 
+### Terras altas
+
 Correlacionada com variaveis da TEMPERATURA
 ```{r}
-Temporario<- TabelabrutaTA[,c(72,	73,	74,	75,	76,	77,	78,	79,	80,	81,	82,	83,	84,	85,	86,	87,	88,	89,	90,	91,	92,	93,	112,	113,	114, 115)]
+Temporario<- mediasTA[,c(58,	59,	60,	61,	18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39)]
 chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
 ```
 
 Correlacionadas com variáveis de umidade e vento
 ```{r}
-Temporario<- TabelabrutaTA[,c(102,	103,	104,	105,	106,	107,	108,	109,	110,	111,	112,	113,	114,	115)]
+Temporario<- mediasTA[,c(58,	59,	60,	61,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
 na.delete(Temporario)
 chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
 ```
 
 Correlacionadas com variáveis radiação e precipitação
 ```{r}
-Temporario<- TabelabrutaTA[,c(94,	95,	96,	97,	98,	99,	100,	101,	112,	113,	114,	115)]
+Temporario<- mediasTA[,c(58,	59,	60,	61,	40,	41,	42,	43,	44,	45,	46,	47)]
 na.delete(Temporario)
 chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
 ```
 
-Correlacionadas com variáveis altitude e de produção
+Correlacionadas com variáveis de desempenhos
 ```{r}
-Temporario<- TabelabrutaTA[,c(8,	21,	22,	23,	62,	63,	64,	65,	67,	68,	112,	113,	114,	115)]
+Temporario<- mediasTA[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	58,	59,	60,	61)]
 na.delete(Temporario)
 chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
+```
+
+Geograficos
+```{r}
+Temporario<- mediasTA[,c(58,	59,	60,	61,	3,	4,	5)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+### Irrigado
+
+Correlacionada com variaveis da TEMPERATURA
+```{r}
+Temporario<- mediasIRR[,c(58,	59,	60,	61,	18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39)]
+chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
+```
+
+Correlacionadas com variáveis de umidade e vento
+```{r}
+Temporario<- mediasIRR[,c(58,	59,	60,	61,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
+```
+
+Correlacionadas com variáveis radiação e precipitação
+```{r}
+Temporario<- mediasIRR[,c(58,	59,	60,	61,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
+```
+
+Correlacionadas com variáveis de desempenhos
+```{r}
+Temporario<- mediasIRR[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	58,	59,	60,	61)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporario)
+```
+
+Geograficos
+```{r}
+Temporario<- mediasIRR[,c(58,	59,	60,	61,	3,	4,	5)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+## Grupo 2 Temperatura
+
+(Latitude, Longitude e altitude)
+
+### Terras altas
+
+Geograficos
+```{r}
+Temporario<- mediasTA[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	3,	4,	5)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Umidade e vento
+```{r}
+Temporario<- mediasTA[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Radiação e precipitação
+```{r}
+Temporario<- mediasTA[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Desempenho
+```{r}
+Temporario<- mediasTA[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+### Irrigado
+
+
+Geograficos
+```{r}
+Temporario<- mediasIRR[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	3,	4,	5)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Umidade e vento
+```{r}
+Temporario<- mediasIRR[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Radiação e precipitação
+```{r}
+Temporario<- mediasIRR[,c(18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+Desempenho
+```{r}
+Temporario<- mediasIRR[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	18,	19,	20,	21,	22,	23,	24,	25,	26,	27,	28,	29,	30,	31,	32,	33,	34,	35,	36,	37,	38,	39)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+## Grupo 3 Geográficos
+
+### Terras altas
+
+Desempenho
+```{r}
+  Temporario<- mediasTA[,c(3,4,5,7,8,9,12,13,14,15,16,17)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Umidade e vento
+```{r}
+  Temporario<- mediasTA[,c(3,	4,	5,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasTA[,c(3,	4,	5,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+### Irrigado
+
+Desempenho
+```{r}
+  Temporario<- mediasIRR[,c(3,4,5,7,8,9,12,13,14,15,16,17)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Umidade e vento
+```{r}
+  Temporario<- mediasIRR[,c(3,	4,	5,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasIRR[,c(3,	4,	5,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+## Grupo 4 Desempenho
+
+### Terras altas
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasTA[,c(40,	41,	42,	43,	44,	45,	46,	47,	7,	8,	9,	12,	13,	14,	15,	16,	17)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Umidade e vento
+```{r}
+  Temporario<- mediasTA[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+### Irrigado
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasIRR[,c(40,	41,	42,	43,	44,	45,	46,	47,	7,	8,	9,	12,	13,	14,	15,	16,	17)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+Umidade e vento
+```{r}
+  Temporario<- mediasIRR[,c(7,	8,	9,	12,	13,	14,	15,	16,	17,	48,	49,	50,	51,	52,	53,	54,	55,	56,	57)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+## Grupo 5 Umidade e vento
+
+### Terras altas
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasTA[,c(48,	49,	50,	51,	52,	53,	54,	55,	56,	57,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+
+```
+
+### Irrigado
+
+Radiação e precipitação
+```{r}
+  Temporario<- mediasIRR[,c(48,	49,	50,	51,	52,	53,	54,	55,	56,	57,	40,	41,	42,	43,	44,	45,	46,	47)]
+na.delete(Temporario)
+chart.Correlation(Temporario, histogram = T)
+rm(Temporaio)
+```
+
+# Temperatura ótima
+
+Pacotes
+```{r}
+library(ggplot2)
+library(dplyr)
+
 ```
 
 
-## Grupo 2 (Prod, flo, ipani,MF, altitude, alt, ciclo ))
-Leitura inicial
+## Terras altas
+Floração
 ```{r}
-  Temporario<- TabelabrutaTA[,c(21,	22,	62,	63,	64,	65,	66,	67,	68,	8,	23,	24)]
-na.delete(Temporario)
-chart.Correlation(Temporario, histogram = T)
+Temporario<- TabelabrutaTA %>% mutate( TMedia = ((Tmax_Media+Tmin_Media)/2)) %>% group_by(TMedia) %>% summarise(FLO = mean(FLO)) %>% na.omit(Temporario)
 
-``` 
+ ggplot()+
+  geom_point(aes(x=TMedia,y=FLO),Temporario, color= "#EA6E16")+
+  geom_smooth(se= T, method='lm', color = "black")+
+  labs(x="Temperatura média", y="Data de florecimento" , title ="Relação temperatura média e data de florecimento de arroz de terras altas")+
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
